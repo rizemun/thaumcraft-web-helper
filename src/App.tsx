@@ -1,8 +1,11 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import aspects from './data/connections';
 
 function App() {
+
+  console.log(aspects);
   return (
     <div className="App">
       <header className="App-header">

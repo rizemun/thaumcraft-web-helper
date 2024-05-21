@@ -23,6 +23,38 @@ const aspectList = [
     'herba',
     'iter',
     'limus',
+    'metallum',
+    'mortuus',
+    'praecantatio',
+    'sano',
+    'tenebrae',
+    'vinculum',
+    'volatus',
+    // third addition
+    'alienis',
+    'arbor',
+    'auram',
+    'corpus',
+    'exanimis',
+    'spiritus',
+    'vitium',
+    // forth addition
+    'cognitio',
+    'sensus',
+    //fifth addition
+    'humanus',
+    //sixth addition
+    'instrumentum',
+    'lucrum',
+    'messis',
+    'perfodio',
+    //seventh addition
+    'fabrico',
+    'machina',
+    'meto',
+    'pannus',
+    'telum',
+    'tutamen'
 ] as const;
 
 export type TAspectName = typeof aspectList[number];
