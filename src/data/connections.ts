@@ -40,14 +40,22 @@ class AspectData implements TAspectData {
 //         return target[property];
 //     },
 // }
+
 class AspectDataList {
     list: AspectData[];
-    // proxy: ProxyHandler<any>
+
+    // [aspectName in TAspectName]?: AspectData;
+
     constructor(aspectDataArray: AspectData[]) {
         this.list = aspectDataArray;
-        // return new Proxy(this, handler)
+
+
+        this[ASPECT.ordo] = aspectDataArray[0]
+        this.ignis = aspectDataArray[1]
     }
 }
+
+const a = AspectDataList.ordo
 
 const list = new AspectDataList([
     new AspectData(ASPECT.ordo),
