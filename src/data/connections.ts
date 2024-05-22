@@ -40,11 +40,6 @@ class AspectData implements TAspectData {
 const createDataList = (aspectDataArray: AspectData[]) => {
     return aspectDataArray.reduce<Record<TAspectName, TAspectFullData>>((acc, aspectData) => {
         const {parents, name} = aspectData;
-        const aspect = {
-            ...aspectData,
-            connections: parents?.length ? [...parents] : []
-        }
-
 
         parents?.forEach(parentName => {
             if(!acc[parentName]) {
@@ -55,7 +50,10 @@ const createDataList = (aspectDataArray: AspectData[]) => {
 
         return {
             ...acc,
-            [name]: aspect
+            [name]: {
+                ...aspectData,
+                connections: parents?.length ? [...parents] : []
+            }
         }
     }, {} as Record<TAspectName, TAspectFullData>)
 }
@@ -92,6 +90,7 @@ const aspects = createDataList([
     new AspectData(ASPECT.tenebrae, ASPECT.lux, ASPECT.vacuos),
     new AspectData(ASPECT.vinculum, ASPECT.motus, ASPECT.perditio),
     new AspectData(ASPECT.volatus, ASPECT.aer, ASPECT.motus),
+    new AspectData(ASPECT.radio, ASPECT.potentia, ASPECT.lux),
 
     new AspectData(ASPECT.alienis, ASPECT.tenebrae, ASPECT.vacuos),
     new AspectData(ASPECT.arbor, ASPECT.aer, ASPECT.herba),
@@ -100,11 +99,19 @@ const aspects = createDataList([
     new AspectData(ASPECT.exanimis, ASPECT.mortuus, ASPECT.motus),
     new AspectData(ASPECT.spiritus, ASPECT.mortuus, ASPECT.victus),
     new AspectData(ASPECT.vitium, ASPECT.perditio, ASPECT.praecantatio),
+    new AspectData(ASPECT.gula, ASPECT.fames, ASPECT.vacuos),
+    new AspectData(ASPECT.infernus, ASPECT.ignis, ASPECT.praecantatio),
+    new AspectData(ASPECT.superbia, ASPECT.vacuos, ASPECT.volatus),
+    new AspectData(ASPECT.magneto, ASPECT.metallum, ASPECT.iter),
 
     new AspectData(ASPECT.cognitio, ASPECT.ignis, ASPECT.spiritus),
     new AspectData(ASPECT.sensus, ASPECT.aer, ASPECT.spiritus),
+    new AspectData(ASPECT.desidia, ASPECT.spiritus, ASPECT.vinculum),
+    new AspectData(ASPECT.luxuria, ASPECT.corpus, ASPECT.fames),
 
     new AspectData(ASPECT.humanus, ASPECT.bestia, ASPECT.cognitio),
+    new AspectData(ASPECT.invidia, ASPECT.fames, ASPECT.sensus),
+    new AspectData(ASPECT.strontio, ASPECT.cognitio, ASPECT.perditio),
 
     new AspectData(ASPECT.instrumentum, ASPECT.humanus, ASPECT.ordo),
     new AspectData(ASPECT.lucrum, ASPECT.fames, ASPECT.humanus),
@@ -117,6 +124,11 @@ const aspects = createDataList([
     new AspectData(ASPECT.pannus, ASPECT.bestia, ASPECT.instrumentum),
     new AspectData(ASPECT.telum, ASPECT.instrumentum, ASPECT.ignis),
     new AspectData(ASPECT.tutamen, ASPECT.instrumentum, ASPECT.terra),
+    new AspectData(ASPECT.terminus, ASPECT.lucrum, ASPECT.alienis),
+    new AspectData(ASPECT.nebrisum, ASPECT.lucrum, ASPECT.perfodio),
+
+    new AspectData(ASPECT.ira, ASPECT.ignis, ASPECT.telum),
+    new AspectData(ASPECT.electrum, ASPECT.potentia, ASPECT.machina),
 ])
 
 export default aspects;
