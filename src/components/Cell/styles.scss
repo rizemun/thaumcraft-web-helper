@@ -1,0 +1,44 @@
+.cell {
+  --outer-radius: 50px;
+  --border-width: 5px;
+  --inner-radius: calc(var(--outer-radius) - var(--border-width));
+  --wider-side: calc(sqrt(3) * var(--outer-radius));
+  --border-radius: 5px;
+
+  left: 100px;
+  top: 100px;
+  position: relative;
+  width: var(--outer-radius);
+  height: var(--wider-side);
+  background-color: pink;
+  //box-shadow: 0 0 0 var(--border-radius) black;
+  filter: drop-shadow(0 0 15px black);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    width: 50%;
+    height: 0;
+    z-index: -1;
+    padding-bottom: 50%;
+    background-color: inherit;
+  }
+
+  &::before {
+    right: 100%;
+    transform: translate(50%, -50%) scale(1.42, 2.45) rotate(45deg);
+  }
+
+  &::after {
+    left: 100%;
+    transform: translate(-50%, -50%) scale(1.42, 2.45) rotate(45deg);
+  }
+
+  &__inner {
+    width: 30px;
+    height: 30px;
+  }
+}
