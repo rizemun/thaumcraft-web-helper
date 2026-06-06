@@ -40,9 +40,9 @@ const CellBase: FC = () => {
                 L${-radiusInner / 2} ${halfHeightInner} 
                 L${-radiusInner} 0
                 `}
-                      fill="var(--hex-inner-color)"
-                      stroke="var(--hex-inner-color)"
-                      strokeWidth={borderRadius * 2}
+                      fill="var(--cell-bg-color)"
+                      stroke="var(--cell-bg-color)"
+                      strokeWidth={`calc(${borderRadius * 2} - var(--cell-stroke-increase, 0))`}
                       strokeLinejoin="round"
                       strokeLinecap="round"
                 />

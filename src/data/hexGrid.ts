@@ -2,6 +2,7 @@
 // Using axial coordinates (q, r) – see https://www.redblobgames.com/grids/hexagons/
 
 import { TAspectName } from './types';
+import {getEnum, TEnumValue} from "../helpers/enum";
 
 // ------ Types ------
 
@@ -10,11 +11,15 @@ export interface HexCoord {
   r: number;
 }
 
-export type CellState = 'empty' | 'occupied' | 'blocked';
+const cellStateVariants = ['empty', 'occupied', 'blocked'] as const;
+
+
+export const ECellState = getEnum(cellStateVariants);
+export type TCellState = TEnumValue<typeof ECellState>
 
 export interface HexCell {
   coord: HexCoord;
-  state: CellState;
+  state: TCellState;
   aspect?: TAspectName; // only when state === 'occupied'
   connections: HexCoord[]; // list of neighbour coordinates
 }
@@ -62,62 +67,120 @@ export interface RectangularGridConfig {
   initialAspects?: { coord: HexCoord; aspect: TAspectName }[];  // pre-filled cells
 }
 
-/** Create a rectangular axial grid. 
- *  The rectangle covers q = [0, height-1], r = [0, width-1]
- *  (offset orientation – works for "pointy top" if we map correctly; 
- *   for offset coordinates we'd need conversion, but axial is fine for data) */
+/** Create a rectangular axial grid starting from the top-left corner (q=0, r=0).
+ *  The grid covers a rough rectangular shape with alternating row lengths
+ *  to account for offset coordinates (pointy-top orientation). */
 export function createRectangularGrid(config: RectangularGridConfig): HexGrid {
   const { width, height, blockedCells = [], initialAspects = [] } = config;
 
-  // Build a set of blocked coordinates for fast lookup
   const blockedSet = new Set<string>(
     blockedCells.map(c => coordKey(c.q, c.r))
   );
-
-  // Build a map of initial aspects
   const aspectMap = new Map<string, TAspectName>(
     initialAspects.map(item => [coordKey(item.coord.q, item.coord.r), item.aspect])
   );
 
   const grid: HexGrid = new Map();
 
-  const centerR = -Math.floor(width / 2);
-  const centerQ = Math.floor(height / 2);
-
   for (let r = 0; r < width; r++) {
-    const initialQ = - Math.floor(r/2) - centerQ + Math.floor(width/4) + 1;
+    const odd = r % 2;
+    for (let q = 0; q < height - odd; q++) {
+      const coord: HexCoord = { q: q - Math.floor(r/2), r };
+      const key = coordKey(q, r);
 
-    const oddColumnModifier = r%2;
-    for (let q = 0; q < height - oddColumnModifier; q++) {
-      const key = coordKey(initialQ + q, centerR + r);
-      const coord: HexCoord = { q: initialQ + q, r: centerR + r };
-
-      // Determine state
-      let state: CellState;
+      let state: TCellState;
       if (blockedSet.has(key)) {
-        state = 'blocked';
+        state = ECellState.blocked;
       } else if (aspectMap.has(key)) {
-        state = 'occupied';
+        state = ECellState.occupied;
       } else {
-        state = 'empty';
+        state = ECellState.empty;
       }
-
-      // Compute neighbours (only existing in grid bounds)
-      const allNeighbours = getNeighbors(coord);
-      const connections: HexCoord[] = allNeighbours.filter(
-        n => n.q >= 0 && n.q < height && n.r >= 0 && n.r < width
-      );
 
       const cell: HexCell = {
         coord,
         state,
-        aspect: state === 'occupied' ? aspectMap.get(key) : undefined,
-        connections,
+        aspect: state === ECellState.occupied ? aspectMap.get(key) : undefined,
+        connections: [], // filled in post-processing
       };
-
       grid.set(key, cell);
     }
   }
+
+  // Post-process: compute connections by checking existing neighbours
+  grid.forEach(cell => {
+    const allNeighbours = getNeighbors(cell.coord);
+    const connections: HexCoord[] = [];
+    for (const n of allNeighbours) {
+      const nKey = coordKey(n.q, n.r);
+      if (grid.has(nKey)) {
+        connections.push(n);
+      }
+    }
+    cell.connections = connections;
+  });
+
+  return grid;
+}
+
+/** Create a hexagonal axial grid centered at (0,0) with the given radius.
+ *  Radius 1 → 7 cells (centre + 6 neighbours).
+ *  Radius 2 → 19 cells, etc.
+ *  Uses axial coordinates where |q| <= radius, |r| <= radius, |q + r| <= radius. */
+export function createCircularGrid(
+  radius: number,
+  options?: {
+    blockedCells?: HexCoord[];
+    initialAspects?: { coord: HexCoord; aspect: TAspectName }[];
+  }
+): HexGrid {
+  const { blockedCells = [], initialAspects = [] } = options ?? {};
+
+  const blockedSet = new Set<string>(blockedCells.map(c => coordKey(c.q, c.r)));
+  const aspectMap = new Map<string, TAspectName>(
+    initialAspects.map(item => [coordKey(item.coord.q, item.coord.r), item.aspect])
+  );
+
+  const grid: HexGrid = new Map();
+
+  for (let q = -radius; q <= radius; q++) {
+    const r1 = Math.max(-radius, -q - radius);
+    const r2 = Math.min(radius, -q + radius);
+    for (let r = r1; r <= r2; r++) {
+      const key = coordKey(q, r);
+      const coord: HexCoord = { q, r };
+
+      let state: TCellState;
+      if (blockedSet.has(key)) {
+        state = ECellState.blocked;
+      } else if (aspectMap.has(key)) {
+        state = ECellState.occupied;
+      } else {
+        state = ECellState.empty;
+      }
+
+      const cell: HexCell = {
+        coord,
+        state,
+        aspect: state === ECellState.occupied ? aspectMap.get(key) : undefined,
+        connections: [],
+      };
+      grid.set(key, cell);
+    }
+  }
+
+  // Post-process: compute connections by checking existing neighbours
+  grid.forEach(cell => {
+    const allNeighbours = getNeighbors(cell.coord);
+    const connections: HexCoord[] = [];
+    for (const n of allNeighbours) {
+      const nKey = coordKey(n.q, n.r);
+      if (grid.has(nKey)) {
+        connections.push(n);
+      }
+    }
+    cell.connections = connections;
+  });
 
   return grid;
 }
@@ -149,16 +212,16 @@ export function createGridFromAscii(
       const coord: HexCoord = { q, r };
       const key = coordKey(q, r);
 
-      let state: CellState;
+      let state: TCellState;
       let aspect: TAspectName | undefined;
 
       if (ch === '#') {
-        state = 'blocked';
+        state = ECellState.blocked;
       } else if (ch === '.') {
-        state = 'empty';
+        state = ECellState.empty;
       } else {
         // Treat as aspect identifier – you can pass a mapping from char to aspect name
-        state = 'occupied';
+        state = ECellState.occupied;
         aspect = (aspectMap && aspectMap[ch]) || (ch as TAspectName);
       }
 
@@ -195,7 +258,7 @@ export function createGridFromAscii(
 export function setCellState(
   grid: HexGrid,
   coord: HexCoord,
-  state: CellState,
+  state: TCellState,
   aspect?: TAspectName
 ): HexGrid {
   const key = coordKey(coord.q, coord.r);
