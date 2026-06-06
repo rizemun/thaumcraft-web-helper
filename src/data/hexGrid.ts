@@ -36,11 +36,11 @@ const HEX_DIRECTIONS: HexCoord[] = [
 
 // ------ Helpers ------
 
-function coordKey(q: number, r: number): string {
+export function coordKey(q: number, r: number): string {
   return `${q},${r}`;
 }
 
-function keyToCoord(key: string): HexCoord {
+export function keyToCoord(key: string): HexCoord {
   const [q, r] = key.split(',').map(Number);
   return { q, r };
 }
@@ -63,7 +63,7 @@ export interface RectangularGridConfig {
 }
 
 /** Create a rectangular axial grid. 
- *  The rectangle covers q = [0, width-1], r = [0, height-1] 
+ *  The rectangle covers q = [0, height-1], r = [0, width-1]
  *  (offset orientation – works for "pointy top" if we map correctly; 
  *   for offset coordinates we'd need conversion, but axial is fine for data) */
 export function createRectangularGrid(config: RectangularGridConfig): HexGrid {
@@ -81,10 +81,16 @@ export function createRectangularGrid(config: RectangularGridConfig): HexGrid {
 
   const grid: HexGrid = new Map();
 
-  for (let r = 0; r < height; r++) {
-    for (let q = 0; q < width; q++) {
-      const key = coordKey(q, r);
-      const coord: HexCoord = { q, r };
+  const centerR = -Math.floor(width / 2);
+  const centerQ = Math.floor(height / 2);
+
+  for (let r = 0; r < width; r++) {
+    const initialQ = - Math.floor(r/2) - centerQ + Math.floor(width/4) + 1;
+
+    const oddColumnModifier = r%2;
+    for (let q = 0; q < height - oddColumnModifier; q++) {
+      const key = coordKey(initialQ + q, centerR + r);
+      const coord: HexCoord = { q: initialQ + q, r: centerR + r };
 
       // Determine state
       let state: CellState;
@@ -99,7 +105,7 @@ export function createRectangularGrid(config: RectangularGridConfig): HexGrid {
       // Compute neighbours (only existing in grid bounds)
       const allNeighbours = getNeighbors(coord);
       const connections: HexCoord[] = allNeighbours.filter(
-        n => n.q >= 0 && n.q < width && n.r >= 0 && n.r < height
+        n => n.q >= 0 && n.q < height && n.r >= 0 && n.r < width
       );
 
       const cell: HexCell = {

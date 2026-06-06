@@ -7,14 +7,16 @@ import styles from './styles.scss'
 const cn = classnames.bind(styles);
 
 type TGridProps = {
-    hexGrid?: HexGrid
+    hexGrid: HexGrid
 }
 
 const Grid : FC<TGridProps> = ({hexGrid}) => {
     console.log('%chexGrid:', 'font-style:italic; color:firebrick', hexGrid);
 
     return <div className={cn('grid')}>
-        <Cell r={1} q={0} value='1:0'/>
+        {Array.from(hexGrid, ([key, cell]) => (
+            <Cell r={cell.coord.r} q={cell.coord.q} key={key} cellConfig={cell}/>
+        ))}
     </div>
 }
 
