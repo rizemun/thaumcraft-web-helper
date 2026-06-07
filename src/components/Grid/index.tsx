@@ -9,13 +9,24 @@ const cn = classnames.bind(styles);
 type TGridProps = {
     hexGrid: HexGrid
 
+    onPointerUpFactory?: (target: HexCell) => PointerEventHandler<HTMLDivElement>
+    onPointerDownFactory?: (target: HexCell) => PointerEventHandler<HTMLDivElement>
     onRightClickFactory?: (target: HexCell) => PointerEventHandler<HTMLDivElement>
 }
 
-const Grid : FC<TGridProps> = ({hexGrid, onRightClickFactory}) => {
+const Grid: FC<TGridProps> = ({hexGrid, onPointerUpFactory, onPointerDownFactory, onRightClickFactory}) => {
     return <div className={cn('grid')}>
         {Array.from(hexGrid, ([key, cell]) => (
-            <Cell r={cell.coord.r} q={cell.coord.q} key={key} cellConfig={cell} view="default" onContextMenu={onRightClickFactory?.(cell)}/>
+            <Cell
+                key={key}
+                r={cell.coord.r}
+                q={cell.coord.q}
+                cellConfig={cell}
+                view="default"
+                onPointerUp={onPointerUpFactory?.(cell)}
+                onPointerDown={onPointerDownFactory?.(cell)}
+                onContextMenu={onRightClickFactory?.(cell)}
+            />
         ))}
     </div>
 }

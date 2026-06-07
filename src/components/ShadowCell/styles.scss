@@ -1,0 +1,22 @@
+.shadow-cell {
+  --cell-border-color: var(--hazelnut-color);
+  --cell-border-color-hover: var(--hazelnut-color);
+  --cell-border-color-blocked: var(--cosmic-latte-color);
+  --cell-bg-color: var(--cosmic-latte-color);
+  --cell-size: 80px;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: calc(var(--x, 0) * 1px - 50%) calc(var(--y, 0) * 1px - 50%);
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .3s ease-out;
+
+  &_hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

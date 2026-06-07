@@ -3,6 +3,7 @@
   --parchment-color: #F1E9D2;
   --cosmic-latte-color: #FFF8E7;
   --cocoa-cupcake-color: #967859;
+  overflow: hidden;
 }
 #root {
   width: 100%;
@@ -14,6 +15,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  user-select: none;
 
   &__field {
     --cell-border-color: var(--hazelnut-color);

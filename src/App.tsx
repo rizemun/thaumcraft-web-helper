@@ -1,4 +1,4 @@
-import React, {ChangeEventHandler, FC, PointerEventHandler, useEffect, useMemo, useState} from 'react';
+import React, {ChangeEventHandler, FC, PointerEventHandler, useEffect, useMemo, useRef, useState} from 'react';
 import styles from './App.scss';
 import aspects from './data/connections';
 import {
@@ -15,13 +15,19 @@ import CellBase from "./components/CellBase";
 import classnames from "classnames/bind";
 import {EAspect, TAspect} from "./data/types";
 import {includes} from "./helpers/enum";
+import {getSideGrid} from "./helpers/getSideGrid";
+import ShadowCell from "./components/ShadowCell";
+import shadowCell from "./components/ShadowCell";
 
 
 const cn = classnames.bind(styles);
 
 function App() {
     const [radius, setRadius] = useState(2);
+    const pointerRef = useRef<{ x: number, y: number }>({x: 0, y: 0})
+    const [shadowCellAspect, setShadowCellAspect] = useState<TAspect>(EAspect.none);
 
+    // central grid staff
     const handleRadiusChange: ChangeEventHandler<HTMLInputElement> = ({target}) => {
         setRadius(target.valueAsNumber)
     }
@@ -30,36 +36,40 @@ function App() {
     ))
 
     useEffect(() => {
-        setGrid(createCircularGrid(
-            radius,
-
-            {
-                blockedCells: [{q: 1, r: 1}, {q: -1, r: 2}],
-                initialAspects: [{coord: {q: 0, r: 0}, aspect: EAspect.ignis}],
-            }
-        ))
+        setGrid(createCircularGrid(radius))
     }, [radius])
 
-    const getSideGrid = (aspectList: TAspect[]) => {
-        let currentGrid = createRectangularGrid({
-            width: 4,
-            height: 9,
-        })
+    const handleGridBlockedToggleFactory: (target: HexCell) => PointerEventHandler<HTMLDivElement> = (target) => (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
 
-        aspectList.forEach((aspect, i) => {
-            const qModification = i % 4 <= 1 ? 0 : -1;
-            const currentCell = currentGrid.get(`${Math.floor(i / 4) + qModification},${i % 4}`)
-            if (!currentCell) {
-                return;
-            }
-            currentCell.state = ECellState.occupied;
-            currentCell.aspect = aspect;
-
-        })
-        return currentGrid;
+        let newState: TCellState = ECellState.occupied;
+        if (includes([ECellState.empty, ECellState.occupied], target.state)) {
+            newState = ECellState.blocked
+        } else {
+            newState = ECellState.empty
+        }
+        console.log(`Update state of ${coordKey(target.coord.q, target.coord.r)}, new state: ${newState}.`)
+        setGrid(setCellState(grid, target.coord, newState, target.aspect));
     }
 
+    const handlePointerOnGridUpFactory: (target: HexCell) => PointerEventHandler<HTMLDivElement> = (target) => (ev) => {
+        // context menu click on another handler
+        if (ev.button === 2) {
+            return;
+        }
 
+        if (target.state === 'blocked') {
+            return;
+        }
+
+        setGrid(setCellState(grid, target.coord, ECellState.occupied, shadowCellAspect));
+    }
+
+    // \central grid staff
+
+
+    // side grid staff
     const leftPanelGrid = useMemo(() => {
         const list = [
             EAspect.ordo, EAspect.terra, EAspect.aqua, EAspect.permutatio,
@@ -90,21 +100,35 @@ function App() {
         return getSideGrid(list);
     }, []);
 
-    const handleGridBlockedToggleFactory: (target: HexCell) => PointerEventHandler<HTMLDivElement> = (target) => (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
+    const handleAspectDragFactory: (target: HexCell) => PointerEventHandler<HTMLDivElement> = (target) => () => {
+        setShadowCellAspect(target.aspect ?? EAspect.none);
+    }
+    // \side grid staff
 
-        let newState: TCellState = ECellState.occupied;
-        if (includes([ECellState.blocked, ECellState.empty], target.state)) {
-            newState = target.state === ECellState.blocked ? ECellState.empty : ECellState.blocked;
+
+    // drag&drop staff
+
+    const handlePointerMove: PointerEventHandler<HTMLDivElement> = (ev) => {
+        pointerRef.current = {
+            x: ev.clientX,
+            y: ev.clientY
         }
-        console.log(`Update state of ${coordKey(target.coord.q, target.coord.r)}, new state: ${newState}.`)
-        setGrid(setCellState(grid, target.coord, newState, target.aspect));
     }
 
-    console.log('aspects', aspects);
+    const handlePointerUp: PointerEventHandler<HTMLDivElement> = () => {
+        setShadowCellAspect(EAspect.none)
+    }
+
+    const handlePointerLeave: PointerEventHandler<HTMLDivElement> = () => {
+        setShadowCellAspect(EAspect.none)
+    }
+
+    // \drag&drop staff
+
+
     return (
-        <div className={cn("app")}>
+        <div className={cn("app")} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}
+             onPointerLeave={handlePointerLeave}>
             <fieldset style={{position: 'absolute', left: "10px", top: '10px'}}>
                 <legend>radius</legend>
                 <input type="range" min={2} max={4} value={radius} onChange={handleRadiusChange}/>
@@ -117,13 +141,15 @@ function App() {
                     <Grid hexGrid={leftPanelGrid}/>
                 </div>
                 <div className={cn("app__main-grid")}>
-                    <Grid hexGrid={grid} onRightClickFactory={handleGridBlockedToggleFactory}/>
+                    <Grid hexGrid={grid}
+                          onPointerUpFactory={handlePointerOnGridUpFactory}
+                          onRightClickFactory={handleGridBlockedToggleFactory}/>
                 </div>
                 <div className={cn("app__panel")}>
-                    <Grid hexGrid={rightPanelGrid}/>
+                    <Grid hexGrid={rightPanelGrid} onPointerDownFactory={handleAspectDragFactory}/>
                 </div>
             </div>
-
+            <ShadowCell aspect={shadowCellAspect} pointerRef={pointerRef}/>
             <CellBase/>
         </div>
     );

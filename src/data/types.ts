@@ -1,6 +1,8 @@
 import {getEnum, TEnumValue} from "../helpers/enum";
 
 const aspectVariants = [
+    //nothing
+    'none',
     // primary
     'ignis',
     'ordo',

@@ -12,13 +12,13 @@ type TCellView = TEnumValue<typeof ECellView>;
 
 
 type TCellProps = {
-    r: number,
-    q: number,
+    r?: number,
+    q?: number,
     cellConfig: HexCell;
     view?: TCellView
 } & HTMLAttributes<HTMLDivElement>
 
-const Cell: FC<TCellProps> = ({cellConfig, r, q, view = ECellView.default, ...props}) => (
+const Cell: FC<TCellProps> = ({cellConfig, r=0, q=0, view = ECellView.default, ...props}) => (
     <div style={{'--r': r, '--q': q} as CSSProperties}
          className={cn('cell', {'cell_coords': view === ECellView.coords, 'cell_blocked': cellConfig.state===ECellState.blocked})}
          data-coord={coordKey(cellConfig.coord.q, cellConfig.coord.r)}
