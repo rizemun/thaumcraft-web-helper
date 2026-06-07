@@ -1,23 +1,17 @@
-import React, {ChangeEventHandler, FC, PointerEventHandler, useEffect, useMemo, useRef, useState} from 'react';
+import React, {ChangeEventHandler, PointerEventHandler, useEffect, useMemo, useRef, useState} from 'react';
 import styles from './App.scss';
-import aspects from './data/connections';
 import {
-    coordKey,
     createCircularGrid,
-    createRectangularGrid,
     ECellState,
     HexCell, HexGrid,
     setCellState, TCellState,
-    validateGrid
 } from "./data/hexGrid";
 import Grid from './components/Grid';
 import CellBase from "./components/CellBase";
 import classnames from "classnames/bind";
 import {EAspect, TAspect} from "./data/types";
-import {includes} from "./helpers/enum";
 import {getSideGrid} from "./helpers/getSideGrid";
 import ShadowCell from "./components/ShadowCell";
-import shadowCell from "./components/ShadowCell";
 import {ECellHoverType} from "./components/Cell";
 
 

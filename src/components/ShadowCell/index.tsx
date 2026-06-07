@@ -75,7 +75,7 @@ const ShadowCell: FC<TShadowCellProps> = ({aspect, pointerRef}) => {
         return () => {
             clearTimeout(timeout);
         }
-    }, [])
+    }, [pointerRef])
 
     const config = useMemo(() => ({
         coord: {
@@ -85,7 +85,7 @@ const ShadowCell: FC<TShadowCellProps> = ({aspect, pointerRef}) => {
         state: ECellState.occupied,
         aspect: prevAspectRef.current,
         connections: []
-    }), [prevAspectRef.current])
+    }), [])
 
 
     return (

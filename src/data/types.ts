@@ -1,4 +1,4 @@
-import {getEnum, TEnumValue} from "../helpers/enum";
+import {getEnum} from "../helpers/enum";
 
 const aspectVariants = [
     //nothing

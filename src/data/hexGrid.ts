@@ -200,7 +200,6 @@ export function createGridFromAscii(
   aspectMap?: Record<string, TAspect>
 ): HexGrid {
   const grid: HexGrid = new Map();
-  const aspectNames = new Set(Object.values({} as Record<string, TAspect>)); // placeholder
 
   for (let r = 0; r < rows.length; r++) {
     const line = rows[r];

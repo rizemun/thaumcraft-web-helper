@@ -2,7 +2,7 @@ import {CSSProperties, FC, HTMLAttributes} from "react";
 import classnames from 'classnames/bind'
 import styles from './styles.scss'
 import {coordKey, ECellState, HexCell} from "../../data/hexGrid";
-import {getEnum, TEnumValue} from "../../helpers/enum";
+import {getEnum} from "../../helpers/enum";
 
 const cn = classnames.bind(styles);
 
