@@ -83,8 +83,7 @@ export function createRectangularGrid(config: RectangularGridConfig): HexGrid {
   const grid: HexGrid = new Map();
 
   for (let r = 0; r < width; r++) {
-    const odd = r % 2;
-    for (let q = 0; q < height - odd; q++) {
+    for (let q = 0; q < height; q++) {
       const coord: HexCoord = { q: q - Math.floor(r/2), r };
       const key = coordKey(q - Math.floor(r/2), r);
 

@@ -68,8 +68,7 @@ function App() {
             EAspect.limus, EAspect.bestia, EAspect.caelum, EAspect.spiritus,
             EAspect.magneto, EAspect.aequalitas, EAspect.corpus, EAspect.humanus,
             EAspect.instrumentum, EAspect.perfodio, EAspect.luxuria, EAspect.tutamen,
-            EAspect.machina, EAspect.gloria, EAspect.gelum, EAspect.motus,
-            EAspect.venenum, EAspect.vacuos, EAspect.messis, EAspect.lucrum,
+            EAspect.machina, EAspect.gloria, EAspect.messis, EAspect.lucrum,
             EAspect.electrum, EAspect.tabernus, EAspect.pannus, EAspect.fabrico,
             EAspect.meto, EAspect.nebrisum,
         ]

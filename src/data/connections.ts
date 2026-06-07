@@ -1,25 +1,21 @@
 import {TAspect, EAspect} from "./types";
+import {getEnum} from "../helpers/enum";
 
-type TPrimaryOrParents = {
-    primary: boolean
-} | {
-    parents: [
-        TAspect,
-        TAspect
-    ]
-}
+const aspectTypeVariants = ['primary', 'composite'] as const;
+const EAspectType = getEnum(aspectTypeVariants);
+type TAspectType = typeof aspectTypeVariants[number];
 
-type TAspectData = Pick<TPrimaryOrParents, keyof TPrimaryOrParents> & {
-    name: TAspect,
-}
+type TAspectData =
+    { name: TAspect; type: TAspectType; parents: TAspect[] }
+
 type TAspectFullData = TAspectData & {
     connections: TAspect[]
 }
 
 class AspectData implements TAspectData {
     readonly name: TAspect;
-    readonly primary?: boolean;
-    readonly parents?: [TAspect, TAspect];
+    readonly type: TAspectType;
+    readonly parents: [] | [TAspect, TAspect];
 
     constructor(name: TAspect);
     constructor(name: TAspect, parent1: TAspect, parent2: TAspect);
@@ -27,13 +23,13 @@ class AspectData implements TAspectData {
     constructor(name: TAspect, parent1?: TAspect, parent2?: TAspect) {
         this.name = name;
 
-        if(!parent1 || !parent2) {
-            this.primary = true;
-            return
+        if (parent1 !== undefined && parent2 !== undefined) {
+            this.type = EAspectType.composite;
+            this.parents = [parent1, parent2];
+        } else {
+            this.type = EAspectType.primary;
+            this.parents = [];
         }
-
-        this.primary = false;
-        this.parents = [parent1, parent2]
     }
 }
 
@@ -41,7 +37,7 @@ const createDataList = (aspectDataArray: AspectData[]) => {
     return aspectDataArray.reduce<Record<TAspect, TAspectFullData>>((acc, aspectData) => {
         const {parents, name} = aspectData;
 
-        parents?.forEach(parentName => {
+        parents.forEach(parentName => {
             if(!acc[parentName]) {
                 return
             }
@@ -52,7 +48,7 @@ const createDataList = (aspectDataArray: AspectData[]) => {
             ...acc,
             [name]: {
                 ...aspectData,
-                connections: parents?.length ? [...parents] : []
+                connections: parents.length ? [...parents] : []
             }
         }
     }, {} as Record<TAspect, TAspectFullData>)
