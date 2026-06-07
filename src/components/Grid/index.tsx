@@ -15,7 +15,7 @@ type TGridProps = {
 const Grid : FC<TGridProps> = ({hexGrid, onRightClickFactory}) => {
     return <div className={cn('grid')}>
         {Array.from(hexGrid, ([key, cell]) => (
-            <Cell r={cell.coord.r} q={cell.coord.q} key={key} cellConfig={cell}  onContextMenu={onRightClickFactory?.(cell)}/>
+            <Cell r={cell.coord.r} q={cell.coord.q} key={key} cellConfig={cell} view="default" onContextMenu={onRightClickFactory?.(cell)}/>
         ))}
     </div>
 }

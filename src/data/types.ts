@@ -1,4 +1,6 @@
-const aspectList = [
+import {getEnum, TEnumValue} from "../helpers/enum";
+
+const aspectVariants = [
     // primary
     'ignis',
     'ordo',
@@ -31,6 +33,8 @@ const aspectList = [
     'vinculum',
     'volatus',
     'radio',
+    'tempus',
+    'primordium',
     // third addition
     'alienis',
     'arbor',
@@ -43,6 +47,8 @@ const aspectList = [
     'infernus',
     'superbia',
     'magneto',
+    'caelum',
+    'astrum',
     // forth addition
     'cognitio',
     'sensus',
@@ -52,11 +58,14 @@ const aspectList = [
     'humanus',
     'invidia',
     'strontio',
+    'aequalitas',
+    'vesania',
     //sixth addition
     'instrumentum',
     'lucrum',
     'messis',
     'perfodio',
+    'gloria',
     //seventh addition
     'fabrico',
     'machina',
@@ -69,15 +78,8 @@ const aspectList = [
     //eight addition
     'ira',
     'electrum',
+    'tabernus'
 ] as const;
 
-export type TAspectName = typeof aspectList[number];
-
-type TAspectCollection = {
-    [P in TAspectName]: P;
-}
-
-export const ASPECT = aspectList.reduce((acc, aspect) => ({
-    ...acc,
-    [aspect]: aspect
-}), {} as TAspectCollection)
+export const EAspect = getEnum(aspectVariants)
+export type TAspect = typeof aspectVariants[number]
