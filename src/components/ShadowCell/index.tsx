@@ -22,19 +22,23 @@ const ShadowCell: FC<TShadowCellProps> = ({aspect, pointerRef}) => {
     const [isHidden, setIsHidden] = useState(aspect === EAspect.none);
 
     const handleAspectChange = useCallback((newAspect: TAspect) => {
+        if(!shadowCellRef.current) {
+            return;
+        }
+
         if (newAspect === EAspect.none) {
-            // @ts-ignore
             if (document.startViewTransition) {
                 console.log('transition api is available')
-                // @ts-ignore
                 shadowCellRef.current.style.viewTransitionName = 'shadow-card';
-                // @ts-ignore
                 const transition = document.startViewTransition(() => {
                     setIsHidden(true)
                 });
 
                 transition.finished.then(() => {
-                    // @ts-ignore
+                    if(!shadowCellRef.current) {
+                        return;
+                    }
+
                     shadowCellRef.current.style.viewTransitionName = 'none';
                 });
 
