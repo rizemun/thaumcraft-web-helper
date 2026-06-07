@@ -22,9 +22,11 @@
   &_coords[data-coord^="0,"] &__bg use {
     color: blue;
   }
+
   &_coords[data-coord$=",0"] &__bg use {
     color: green;
   }
+
   &_coords[data-coord="0,0"] &__bg use {
     color: red;
   }
@@ -57,6 +59,21 @@
 
   &:hover {
     --cell-border-color: var(--cell-border-color-hover);
+    --cell-stroke-increase: 1;
+  }
+
+  &_hover-magical:hover {
+    --cell-stroke-dasharray: 8px;
+    --cell-animation-state: running;
+    --cell-stroke-increase: 2;
+  }
+
+  &._shadow-cell {
+    --cell-border-color: var(--cell-border-color-hover);
+    --cell-stroke-increase: 1;
+  }
+
+  &_hover-magical._shadow-cell {
     --cell-stroke-dasharray: 8px;
     --cell-animation-state: running;
     --cell-stroke-increase: 2;

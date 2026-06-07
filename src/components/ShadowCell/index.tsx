@@ -1,4 +1,4 @@
-import Cell from "../Cell";
+import Cell, {ECellHoverType} from "../Cell";
 import {FC, RefObject, useEffect, useMemo, useRef} from "react";
 import {EAspect, TAspect} from "../../data/types";
 import {ECellState} from "../../data/hexGrid";
@@ -47,7 +47,7 @@ const ShadowCell: FC<TShadowCellProps> = ({aspect, pointerRef}) => {
 
     return (
         <div className={cn('shadow-cell', {'shadow-cell_hidden': aspect === EAspect.none})} ref={shadowCellRef}>
-            <Cell cellConfig={config}/>
+            <Cell cellConfig={config} hoverType={ECellHoverType.magical} className="_shadow-cell"/>
         </div>
     )
 }

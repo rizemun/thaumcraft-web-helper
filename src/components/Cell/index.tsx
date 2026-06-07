@@ -7,22 +7,32 @@ import {getEnum, TEnumValue} from "../../helpers/enum";
 const cn = classnames.bind(styles);
 
 const cellViewVariants = ['default', 'coords'] as const;
-const ECellView = getEnum(cellViewVariants);
-type TCellView = TEnumValue<typeof ECellView>;
+export const ECellView = getEnum(cellViewVariants);
+export type TCellView = typeof cellViewVariants[number];
+
+const hoverTypeVariants = ['default', 'magical'] as const;
+export const ECellHoverType = getEnum(hoverTypeVariants);
+export type TCellHoverType = typeof hoverTypeVariants[number];
 
 
 type TCellProps = {
-    r?: number,
-    q?: number,
+    r?: number;
+    q?: number;
     cellConfig: HexCell;
-    view?: TCellView
+    view?: TCellView;
+    hoverType?: TCellHoverType;
 } & HTMLAttributes<HTMLDivElement>
 
-const Cell: FC<TCellProps> = ({cellConfig, r=0, q=0, view = ECellView.default, ...props}) => (
+const Cell: FC<TCellProps> = ({cellConfig, r = 0, q = 0, view = ECellHoverType.default, hoverType = ECellHoverType.default, ...props}) => (
     <div style={{'--r': r, '--q': q} as CSSProperties}
-         className={cn('cell', {'cell_coords': view === ECellView.coords, 'cell_blocked': cellConfig.state===ECellState.blocked})}
-         data-coord={coordKey(cellConfig.coord.q, cellConfig.coord.r)}
          {...props}
+         className={cn('cell', {
+             'cell_coords': view === ECellView.coords,
+             'cell_blocked': cellConfig.state === ECellState.blocked,
+             'cell_hover-magical': hoverType === ECellHoverType.magical,
+         },
+             props.className)}
+         data-coord={coordKey(cellConfig.coord.q, cellConfig.coord.r)}
     >
         <svg className={cn('cell__bg')}>
             <use href="#hex"/>

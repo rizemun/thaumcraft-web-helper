@@ -18,6 +18,7 @@ import {includes} from "./helpers/enum";
 import {getSideGrid} from "./helpers/getSideGrid";
 import ShadowCell from "./components/ShadowCell";
 import shadowCell from "./components/ShadowCell";
+import {ECellHoverType} from "./components/Cell";
 
 
 const cn = classnames.bind(styles);
@@ -26,6 +27,7 @@ function App() {
     const [radius, setRadius] = useState(2);
     const pointerRef = useRef<{ x: number, y: number }>({x: 0, y: 0})
     const [shadowCellAspect, setShadowCellAspect] = useState<TAspect>(EAspect.none);
+    const isDragging = shadowCellAspect !== EAspect.none;
 
     // central grid staff
     const handleRadiusChange: ChangeEventHandler<HTMLInputElement> = ({target}) => {
@@ -43,16 +45,12 @@ function App() {
         ev.preventDefault();
         ev.stopPropagation();
 
-        let newState: TCellState = ECellState.occupied;
-        if(target.state === ECellState.occupied) {
-            newState = ECellState.empty
-        } else if (target.state === ECellState.empty) {
+        let newState: TCellState = ECellState.empty;
+        if (target.state === ECellState.empty) {
             newState = ECellState.blocked
-        } else {
-            newState = ECellState.empty
         }
-        console.log(`Update state of ${coordKey(target.coord.q, target.coord.r)}, new state: ${newState}.`)
-        setGrid(setCellState(grid, target.coord, newState, target.aspect));
+
+        setGrid(setCellState(grid, target.coord, newState, EAspect.none));
     }
 
     const handlePointerOnGridUpFactory: (target: HexCell) => PointerEventHandler<HTMLDivElement> = (target) => (ev) => {
@@ -146,12 +144,14 @@ function App() {
             <div className={cn("app__field")}>
 
                 <div className={cn("app__panel")}>
-                    <Grid hexGrid={leftPanelGrid}/>
+                    <Grid hexGrid={leftPanelGrid} onPointerDownFactory={handleAspectDragFactory}/>
                 </div>
                 <div className={cn("app__main-grid")}>
                     <Grid hexGrid={grid}
                           onPointerUpFactory={handlePointerOnGridUpFactory}
-                          onRightClickFactory={handleGridBlockedToggleFactory}/>
+                          onRightClickFactory={handleGridBlockedToggleFactory}
+                          cellHoverType={isDragging ? ECellHoverType.magical : ECellHoverType.default}
+                    />
                 </div>
                 <div className={cn("app__panel")}>
                     <Grid hexGrid={rightPanelGrid} onPointerDownFactory={handleAspectDragFactory}/>
