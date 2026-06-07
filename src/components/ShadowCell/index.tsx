@@ -1,5 +1,5 @@
 import Cell, {ECellHoverType} from "../Cell";
-import {FC, RefObject, useEffect, useMemo, useRef} from "react";
+import {FC, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {EAspect, TAspect} from "../../data/types";
 import {ECellState} from "../../data/hexGrid";
 import styles from './styles.scss';
@@ -17,6 +17,45 @@ type TShadowCellProps = {
 
 const ShadowCell: FC<TShadowCellProps> = ({aspect, pointerRef}) => {
     const shadowCellRef = useRef<HTMLDivElement>(null)
+    const prevAspectRef = useRef<TAspect>(aspect)
+
+    const [isHidden, setIsHidden] = useState(aspect === EAspect.none);
+
+    const handleAspectChange = useCallback((newAspect: TAspect) => {
+        if (newAspect === EAspect.none) {
+            // @ts-ignore
+            if (document.startViewTransition) {
+                console.log('transition api is available')
+                // @ts-ignore
+                shadowCellRef.current.style.viewTransitionName = 'shadow-card';
+                // @ts-ignore
+                const transition = document.startViewTransition(() => {
+                    setIsHidden(true)
+                });
+
+                transition.finished.then(() => {
+                    // @ts-ignore
+                    shadowCellRef.current.style.viewTransitionName = 'none';
+                });
+
+            } else {
+                // Fallback если API не поддерживается
+                setIsHidden(true)
+                console.log('no transition api')
+            }
+        } else {
+            // Показываем (возвращаем)
+            setIsHidden(false)
+        }
+
+        prevAspectRef.current = newAspect;
+    }, []);
+
+    useLayoutEffect(() => {
+        if (prevAspectRef.current !== aspect) {
+            handleAspectChange(aspect);
+        }
+    }, [aspect, handleAspectChange]);
 
     useEffect(() => {
         let timeout : ReturnType<typeof window.setTimeout>
@@ -40,13 +79,13 @@ const ShadowCell: FC<TShadowCellProps> = ({aspect, pointerRef}) => {
             q: 0
         },
         state: ECellState.occupied,
-        aspect,
+        aspect: prevAspectRef.current,
         connections: []
-    }), [aspect])
+    }), [prevAspectRef.current])
 
 
     return (
-        <div className={cn('shadow-cell', {'shadow-cell_hidden': aspect === EAspect.none})} ref={shadowCellRef}>
+        <div className={cn('shadow-cell', {'shadow-cell_hidden': isHidden})} ref={shadowCellRef}>
             <Cell cellConfig={config} hoverType={ECellHoverType.magical} className="_shadow-cell"/>
         </div>
     )
