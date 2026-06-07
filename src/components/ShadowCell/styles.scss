@@ -12,10 +12,12 @@
   width: 80px;
   height: 80px;
   pointer-events: none;
-  opacity: 1;
-  transition: opacity .3s ease-out;
+  opacity: 0.8;
+  transition: opacity .3s ease-out, scale .3s ease-out;
+  scale: 0.8;
 
   &_hidden {
+    scale: 1;
     opacity: 0;
     pointer-events: none;
   }

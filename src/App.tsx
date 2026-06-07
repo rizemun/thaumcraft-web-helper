@@ -44,7 +44,9 @@ function App() {
         ev.stopPropagation();
 
         let newState: TCellState = ECellState.occupied;
-        if (includes([ECellState.empty, ECellState.occupied], target.state)) {
+        if(target.state === ECellState.occupied) {
+            newState = ECellState.empty
+        } else if (target.state === ECellState.empty) {
             newState = ECellState.blocked
         } else {
             newState = ECellState.empty
@@ -59,7 +61,13 @@ function App() {
             return;
         }
 
+        // cant interact with blocked cells
         if (target.state === 'blocked') {
+            return;
+        }
+
+        // if click without aspect
+        if (shadowCellAspect === EAspect.none) {
             return;
         }
 
